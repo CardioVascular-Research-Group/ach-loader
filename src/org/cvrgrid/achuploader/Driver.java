@@ -25,12 +25,14 @@ public class Driver {
         Option processedFile = new Option("p", "processed-file", true, "File to track what's already been done");
         Option batchFile = new Option("b", "batch-file", true, "File to output the batch script in");
         Option achRoot = new Option("r", "root-dir", true, "Directory to generate the script for");
+        Option subjectPrefix = new Option("s", "subject-prefix", true, "Subject identifier prefix to split on");
 
         options.addOption(version);
         options.addOption(limit);
         options.addOption(processedFile);
         options.addOption(batchFile);
         options.addOption(achRoot);
+        options.addOption(subjectPrefix);
     }
 
     private static void printHelp() {
@@ -47,20 +49,22 @@ public class Driver {
         try {
             CommandLine cmd = parser.parse(options, aArgs);
             ApplicationContext context =  new AnnotationConfigApplicationContext(ApplicationConfigs.class);
-            String achRoot = "", limit = "", processedFile = "", batchFile = "";
+            String achRoot = "", limit = "", processedFile = "", batchFile = "", subjectPrefix = "";
             
             if (cmd.hasOption("version")) {
                 String versionInfo = (String)context.getBean("version");
                 System.out.println(versionInfo);
 
-            } else if (cmd.hasOption("achRoot") || cmd.hasOption("limit") || cmd.hasOption("processedFile") || cmd.hasOption("batchFile")) {
+            } else if (cmd.hasOption("achRoot") || cmd.hasOption("limit") || cmd.hasOption("subjectPrefix") ||
+            			cmd.hasOption("processedFile") || cmd.hasOption("batchFile")) {
                 if (cmd.hasOption("achRoot")) achRoot = cmd.getOptionValue("achRoot");
             	if (cmd.hasOption("limit")) limit = cmd.getOptionValue("limit");
                 if (cmd.hasOption("processedFile")) processedFile = cmd.getOptionValue("processedFile");
                 if (cmd.hasOption("batchFile")) batchFile = cmd.getOptionValue("batchFile");
+                if (cmd.hasOption("subjectPrefix")) subjectPrefix = cmd.getOptionValue("subjectPrefix");
 
                 AchUploaderFacade facade = (AchUploaderFacade)context.getBean("achUploaderFacade");
-                facade.generateScript(achRoot, limit, processedFile, batchFile);
+                facade.generateScript(achRoot, limit, processedFile, batchFile, subjectPrefix);
 
             } else {
                 printHelp();

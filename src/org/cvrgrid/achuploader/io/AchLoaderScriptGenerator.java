@@ -17,22 +17,22 @@ import java.util.ArrayList;
 
 public class AchLoaderScriptGenerator {
 
-	public AchLoaderScriptGenerator(String achRoot, String limit, String processedFile, String batchFile) throws IOException {
+	public AchLoaderScriptGenerator(String achRoot, String limit, String processedFile, String batchFile, String subjectPrefix) throws IOException {
 
 		FileVisitor<Path> fileProcessor;
-		fileProcessor = new ProcessFile(limit, processedFile, batchFile);
+		fileProcessor = new ProcessFile(limit, processedFile, batchFile, subjectPrefix);
 		Files.walkFileTree(Paths.get(achRoot), fileProcessor);
 
 	}
 
 	private static final class ProcessFile extends SimpleFileVisitor<Path> {
 
-		String currentFolder, processedFile, batchFile;
-		int dirCount, limit, fileCount;
-		ArrayList<String> visitedDirs, processedFiles;
-		Path currentDir;
+		private String currentFolder, processedFile, batchFile, subjectPrefix;
+		private int dirCount, limit, fileCount;
+		private ArrayList<String> visitedDirs, processedFiles;
+		private Path currentDir;
 
-		public ProcessFile(String limit, String processedFile, String batchFile) {
+		public ProcessFile(String limit, String processedFile, String batchFile, String subjectPrefix) {
 			setCurrentFolder("");
 			setDirCount(0);
 			setFileCount(0);
@@ -47,6 +47,7 @@ public class AchLoaderScriptGenerator {
 			File processedFileContents = new File (getProcessedFile());
 			if (processedFileContents.exists()) setProcessedFiles(getPFiles(processedFileContents, getProcessedFiles()));
 			setBatchFile(batchFile);
+			setSubjectPrefix(subjectPrefix);
 
 		}
 
@@ -131,6 +132,16 @@ public class AchLoaderScriptGenerator {
 		}
 
 
+		public String getSubjectPrefix() {
+			return subjectPrefix;
+		}
+
+
+		public void setSubjectPrefix(String subjectPrefix) {
+			this.subjectPrefix = subjectPrefix;
+		}
+
+
 		@Override public FileVisitResult visitFile(
 				Path aFile, BasicFileAttributes aAttrs
 				) throws IOException {
@@ -156,9 +167,9 @@ public class AchLoaderScriptGenerator {
 				Path aDir, BasicFileAttributes aAttrs
 				) throws IOException {
 			ArrayList<String> tempPaths = getVisitedDirs();
-			String splitString = File.separator;
-			if (File.separator.equalsIgnoreCase("\\")) splitString += File.separator;
-			if (aDir.toString().split(splitString).length > 1) setCurrentFolder(aDir.toString().split(splitString)[1]);
+			String splitString = getSubjectPrefix();
+			//if (File.separator.equalsIgnoreCase("\\")) splitString += File.separator;
+			if (aDir.toString().split(splitString).length > 1) setCurrentFolder(getSubjectPrefix() + aDir.toString().split(splitString)[1]);
 			setCurrentDir(aDir);
 			setDirCount(getDirCount() + 1);
 			if (getDirCount() < 2)

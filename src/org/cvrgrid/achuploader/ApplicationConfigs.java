@@ -47,4 +47,9 @@ public class ApplicationConfigs {
         return configurationFile.getString("batch-File");
     }
 
+    @Bean
+    public String subjectPrefix(org.apache.commons.configuration2.Configuration configurationFile) { // Chaining dependency.
+        return configurationFile.getString("subject-Prefix");
+    }
+
 }
